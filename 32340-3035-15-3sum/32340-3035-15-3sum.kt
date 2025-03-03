@@ -6,30 +6,19 @@ class Solution {
         val minusNumsList = mutableListOf<Int>()
         val zeroNumsList = mutableListOf<Int>()
         val plusNumsList = mutableListOf<Int>()
-        lateinit var minusNumsSet: MutableSet<Int>
-        lateinit var plusNumsSet: MutableSet<Int>
         nums.sort()//
 
         for (index in 0 until nums.size - 1) {
+            fun MutableList<Int>.setNumsListAndDuplicatedSet() {
+                add(nums[index])
+                if (nums[index] == nums[index + 1]) {
+                    duplicatedNumsSet.add(nums[index])
+                }
+            }
             when {
-                nums[index] < 0 -> minusNumsList.apply {
-                    add(nums[index])
-                    if (nums[index] == nums[index + 1]) {
-                        duplicatedNumsSet.add(nums[index])
-                    }
-                }
-                nums[index] == 0 -> zeroNumsList.apply {
-                    add(nums[index])
-                    if (nums[index] == nums[index + 1]) {
-                        duplicatedNumsSet.add(nums[index])
-                    }
-                }
-                nums[index] > 0 -> plusNumsList.apply {
-                    add(nums[index])
-                    if (nums[index] == nums[index + 1]) {
-                        duplicatedNumsSet.add(nums[index])
-                    }
-                }
+                nums[index] < 0 -> minusNumsList.setNumsListAndDuplicatedSet()
+                nums[index] == 0 -> zeroNumsList.setNumsListAndDuplicatedSet()
+                nums[index] > 0 -> plusNumsList.setNumsListAndDuplicatedSet()
             }
 
             if (index + 1 == nums.lastIndex) {
@@ -41,8 +30,8 @@ class Solution {
             }
         }
 
-        plusNumsSet = plusNumsList.toMutableSet()
-        minusNumsSet = minusNumsList.toMutableSet()
+        val plusNumsSet: MutableSet<Int> = plusNumsList.toMutableSet()
+        val minusNumsSet: MutableSet<Int> = minusNumsList.toMutableSet()
 
         if (zeroNumsList.size >= 3) result.add(listOf(0,0,0))
         if (minusNumsList.size == 0 || plusNumsList.size == 0) return result.toList()
@@ -55,44 +44,34 @@ class Solution {
 
         while (minusStart <= minusEnd && plusStart <= plusEnd) { //
             val sub = minusNumsList[minusStart] + plusNumsList[plusStart]
+            val addTarget = listOf(minusNumsList[minusStart], plusNumsList[plusStart], -sub).sorted()
 
             when {
                 -sub == 0 -> {
-                    val addTarget = listOf(minusNumsList[minusStart], plusNumsList[plusStart], -sub).sorted()
                     if (!result.contains(addTarget) && zeroNumsList.isNotEmpty()) {
                         result.add(listOf(minusNumsList[minusStart], 0, plusNumsList[plusStart]))
                     }
                 }
                 -sub > 0 -> {
-                    val addTarget = listOf(minusNumsList[minusStart], plusNumsList[plusStart], -sub).sorted()
                     if (!result.contains(addTarget)) {
                         when (-sub == plusNumsList[plusStart]) {
                             true -> {
-                                if (duplicatedNumsSet.contains(-sub)) {
-                                    result.add(addTarget)
-                                }
+                                if (duplicatedNumsSet.contains(-sub)) result.add(addTarget)
                             }
                             false -> {
-                                if (plusNumsSet.contains(-sub)) {
-                                    result.add(addTarget)
-                                }
+                                if (plusNumsSet.contains(-sub)) result.add(addTarget)
                             }
                         }
                     }
                 }
                 -sub < 0 -> {
-                    val addTarget = listOf(minusNumsList[minusStart], plusNumsList[plusStart], -sub).sorted()
                     if (!result.contains(addTarget)) {
                         when (-sub == minusNumsList[minusStart]) {
                             true -> {
-                                if (duplicatedNumsSet.contains(-sub)) {
-                                    result.add(addTarget)
-                                }
+                                if (duplicatedNumsSet.contains(-sub)) result.add(addTarget)
                             }
                             false -> {
-                                if (minusNumsSet.contains(-sub)) {
-                                    result.add(addTarget)
-                                }
+                                if (minusNumsSet.contains(-sub)) result.add(addTarget)
                             }
                         }
                     }
